@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+  </title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function unscramble(scrambledUrl, key) {
+            return [...atob(scrambledUrl)].map((char, i) => String.fromCharCode(char.charCodeAt(0) ^ key.charCodeAt(i % key.length))).join('');
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const scrambledUrl = params.get('url');
+
+        if (scrambledUrl) {
+            const scrambleKey = getCookie('scrambleKey');
+
+            if (scrambleKey) {
+                const originalUrl = unscramble(scrambledUrl, scrambleKey);
+                
+                document.write(`<iframe src="${originalUrl}" allowfullscreen></iframe>`);
+            } else {
+                document.body.innerHTML = "<h2>Key not found. Unable to identify the URL.</h2>";
+            }
+        } else {
+            document.body.innerHTML = "<h2>Invalid URL</h2>";
+        }
+    </script>
+</body>
+</html>
