@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Enter a Website URL</h1>
+    <input type="text" id="urlInput" placeholder="Enter URL (e.g., https://example.com)" required />
+    <button onclick="openIframePage()">Open Fullscreen iFrame</button>
+
+    <script>
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+
+        function scramble(url, key) {
+            return btoa([...url].map((char, i) => String.fromCharCode(char.charCodeAt(0) ^ key.charCodeAt(i % key.length))).join(''));
+        }
+
+        function ensureHttps(url) {
+            if (!/^https?:\/\//i.test(url)) {
+                return 'https://' + url;
+            }
+            return url;
+        }
+
+        function openIframePage() {
+            let url = document.getElementById('urlInput').value.trim();
+
+            if (url !== "") {
+                url = ensureHttps(url);
+
+                let scrambleKey = getCookie('scrambleKey');
+                if (!scrambleKey) {
+                    scrambleKey = Math.random().toString(36).substring(2, 15);
+                    setCookie('scrambleKey', scrambleKey, 7);
+                }
+
+                const scrambledUrl = scramble(url, scrambleKey);
+
+                window.open(`education.html?url=${encodeURIComponent(scrambledUrl)}`, '_blank');
+            } else {
+                alert("Please enter a valid URL.");
+            }
+        }
+
+         document.getElementById('urlInput').addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                openIframePage();
+            }
+        });
+    </script>
+</body>
+</html>
